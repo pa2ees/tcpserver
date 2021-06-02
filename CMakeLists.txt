@@ -13,4 +13,7 @@ if (NOT BSD_EDITLINE_LIB)
 
 endif()
 
+# target_compile_definitions(${PROJECT_NAME} PUBLIC ASIO_STANDALONE)
+target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
+target_link_libraries(${PROJECT_NAME} PRIVATE boost_thread)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${BSD_EDITLINE_LIB})

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <iostream>
 
 #define PORT 23456
 
@@ -16,14 +17,17 @@ public:
 
     void run();
     void setup();
-    void acceptConnections();
 
 private:
+
+    
     int server_fd, new_socket, valread;
     struct sockaddr_in address;
     int opt = 1;
     int addrlen = sizeof(address);
     char buffer[1024] = {0};
     const char *hello = "Hello from server";
-
 };
+
+void handleInterrupt(int num);
+
