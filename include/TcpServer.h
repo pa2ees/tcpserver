@@ -2,6 +2,7 @@
 #include "ICommsApp.h"
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <iostream>
 
 // forward declare TcpConnection so it doesn't need to be in the public API
 class TcpConnection;
@@ -9,10 +10,16 @@ class TcpConnection;
 class TcpServer
 {
 public:
-	TcpServer(std::function<ICommsApp *()> getNewCommsApp, boost::shared_ptr<boost::asio::io_context> ioContext = {});
+	TcpServer(std::function<ICommsApp *()> getNewCommsApp,
+	                     boost::shared_ptr<boost::asio::io_context> ioContext, boost::asio::ip::address ipAddress,
+	                     unsigned short port);
+
+	TcpServer(std::function<ICommsApp *()> getNewCommsApp,
+	                     boost::shared_ptr<boost::asio::io_context> ioContext, std::string pathName);
+
+
 	~TcpServer();
 
-	static boost::asio::generic::stream_protocol::endpoint createEndpoint();
 	void run();
 	void stop();
 
@@ -28,4 +35,5 @@ private:
 	boost::shared_ptr<boost::asio::ip::tcp::acceptor> tcpAcceptor_ = {};
 	boost::shared_ptr<boost::asio::local::stream_protocol::acceptor> udsAcceptor_ = {};
 	bool ioContextCreatedByUs_ = false;
+	bool valid_ = true;
 };

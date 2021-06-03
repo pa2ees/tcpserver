@@ -8,13 +8,45 @@
 
 TcpServer::TcpServer(std::function<ICommsApp *()> getNewCommsApp, boost::shared_ptr<boost::asio::io_context> ioContext,
                      boost::asio::ip::address ipAddress, unsigned short port)
-    : getNewCommsApp_{getNewCommsApp}, ioContext_{ioContext} tcpAcceptor_(
-                                           ioContext, boost::asio::ip::tcp::endpoint(ipAddress, port))
+    : getNewCommsApp_{getNewCommsApp}, ioContext_{ioContext}
 {
 	if (ioContext_.get() == nullptr)
 	{
 		ioContext_ = boost::make_shared<boost::asio::io_context>();
 		ioContextCreatedByUs_ = true;
+	}
+	try
+	{
+		tcpAcceptor_ = boost::make_shared<boost::asio::ip::tcp::acceptor>(
+		    *ioContext, boost::asio::ip::tcp::endpoint(ipAddress, port));
+	}
+	catch (boost::system::system_error &e)
+	{
+		std::cerr << e.what() << std::endl;
+		valid_ = false;
+	}
+}
+
+TcpServer::TcpServer(std::function<ICommsApp *()> getNewCommsApp, boost::shared_ptr<boost::asio::io_context> ioContext,
+                     std::string pathName)
+    : getNewCommsApp_{getNewCommsApp}, ioContext_{ioContext}
+{
+	if (ioContext_.get() == nullptr)
+	{
+		ioContext_ = boost::make_shared<boost::asio::io_context>();
+		ioContextCreatedByUs_ = true;
+	}
+	try
+	{
+        ::unlink(pathName.c_str());
+        boost::asio::local::stream_protocol::endpoint endpoint(pathName);
+		udsAcceptor_ = boost::make_shared<boost::asio::local::stream_protocol::acceptor>(
+		    *ioContext, endpoint);
+	}
+	catch (boost::system::system_error &e)
+	{
+		std::cerr << e.what() << std::endl;
+		valid_ = false;
 	}
 }
 
@@ -25,7 +57,13 @@ TcpServer::~TcpServer()
 
 
 void TcpServer::run()
-{ // start the io_context, if created by us, otherwise assume it's run outside this instance
+{
+	if (!valid_)
+	{ // only run if we are valid
+		return;
+	}
+
+	// start the io_context, if created by us, otherwise assume it's run outside this instance
 	if (ioContextCreatedByUs_)
 	{
 		ioContextThread_ = new boost::thread([this]() { ioContext_->run(); });
@@ -53,9 +91,16 @@ void TcpServer::startAccept()
 	// to a shared pointer to its parent (ICommsConnection)
 	commsApp->addConnection(boost::dynamic_pointer_cast<ICommsConnection>(newConnection));
 
-	newConnection->socket().async_accept(
-	    newConnection->socket(),
-	    boost::bind(&TcpServer::handleAccept, this, newConnection, boost::asio::placeholders::error));
+	if (tcpAcceptor_.get() != nullptr)
+	{
+		tcpAcceptor_->async_accept(newConnection->socket(), boost::bind(&TcpServer::handleAccept, this, newConnection,
+		                                                               boost::asio::placeholders::error));
+	}
+	else if (udsAcceptor_.get() != nullptr)
+	{
+		udsAcceptor_->async_accept(newConnection->socket(), boost::bind(&TcpServer::handleAccept, this, newConnection,
+		                                                               boost::asio::placeholders::error));
+	}
 }
 
 void TcpServer::handleAccept(boost::shared_ptr<TcpConnection> newConnection, const boost::system::error_code &error)
