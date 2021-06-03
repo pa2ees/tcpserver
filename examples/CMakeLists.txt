@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(exampleApp CXX)
+set(ALL_EXAMPLES_TARGET examples)
 
-add_executable(${PROJECT_NAME})
-target_link_libraries(${PROJECT_NAME} PRIVATE commsserver)
+add_custom_target(${ALL_EXAMPLES_TARGET})
 
-add_subdirectory(src)
+add_subdirectory(tcpcli)
 
