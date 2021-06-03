@@ -8,7 +8,7 @@
 class TcpConnection : public ICommsConnection, public boost::enable_shared_from_this<TcpConnection>
 {
 public:
-	TcpConnection(boost::asio::io_context &ioContext, boost::shared_ptr<ICommsApp> commsApp = {});
+	TcpConnection(boost::asio::io_context &ioContext, boost::shared_ptr<ICommsApp> commsApp);
 	~TcpConnection();
 
 	boost::asio::generic::stream_protocol::socket &socket() override;

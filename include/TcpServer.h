@@ -10,12 +10,13 @@ class TcpConnection;
 class TcpServer
 {
 public:
-	TcpServer(std::function<ICommsApp *()> getNewCommsApp,
-	                     boost::shared_ptr<boost::asio::io_context> ioContext, boost::asio::ip::address ipAddress,
-	                     unsigned short port);
+	TcpServer(std::function<ICommsApp *()> getNewCommsApp, boost::asio::ip::address ipAddress, unsigned short port);
+	TcpServer(std::function<ICommsApp *()> getNewCommsApp, boost::shared_ptr<boost::asio::io_context> ioContext,
+	          boost::asio::ip::address ipAddress, unsigned short port);
 
-	TcpServer(std::function<ICommsApp *()> getNewCommsApp,
-	                     boost::shared_ptr<boost::asio::io_context> ioContext, std::string pathName);
+	TcpServer(std::function<ICommsApp *()> getNewCommsApp, std::string pathName);
+	TcpServer(std::function<ICommsApp *()> getNewCommsApp, boost::shared_ptr<boost::asio::io_context> ioContext,
+	          std::string pathName);
 
 
 	~TcpServer();
@@ -26,6 +27,7 @@ public:
 private:
 	void startAccept();
 	void handleAccept(boost::shared_ptr<TcpConnection> newConnection, const boost::system::error_code &error);
+	void ioContextRun();
 
 
 	// must be a function pointer that returns a ICommsApp* object
