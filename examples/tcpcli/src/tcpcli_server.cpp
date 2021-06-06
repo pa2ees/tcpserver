@@ -1,62 +1,4 @@
-#include <ICommsApp.h>
-#include <ICommsConnection.h>
-#include <TcpServer.h>
-#include <iostream>
-
-class Cli : public ICommsApp
-{
-public:
-	Cli() {}
-	~Cli() {}
-
-	int handleRead(std::string incomingMessage, const boost::system::error_code &error,
-	               size_t bytesTransferred) override
-	{ // do stuff
-		int retval = 0;
-		std::cout << "Got: " << incomingMessage << std::endl;
-
-		if (incomingMessage == "who\r\n")
-		{
-			sendMessage("I am me");
-		}
-
-		return retval;
-	}
-	int handleWrite(const boost::system::error_code &error, size_t bytesTransferred) override
-	{ // At the moment, this is not used
-		std::cout << "Handle Write" << std::endl;
-		return 0;
-	}
-	void sendMessage(std::string outgoingMessage)
-	{
-		if (commsConnection_)
-		{
-			commsConnection_->writeMessage(outgoingMessage);
-		}
-		else
-		{
-			std::cout << "Could not write message, no commsConnection!" << std::endl;
-		}
-	}
-	void connectionClosed() override
-	{ // do stuff
-		std::cout << "Connection closed" << std::endl;
-		commsConnection_.reset();
-	}
-	void addConnection(boost::shared_ptr<ICommsConnection> commsConnection) override
-	{ // do stuff
-		std::cout << "Add Connection" << std::endl;
-		commsConnection_ = commsConnection;
-	}
-
-private:
-	boost::shared_ptr<ICommsConnection> commsConnection_ = {};
-};
-
-Cli *createNewCli()
-{
-	return new Cli();
-}
+#include "CliServer.h"
 
 int main(int argc, char *argv[])
 {
@@ -69,7 +11,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	TcpServer tcpServer([]() { return new Cli(); }, //
+	TcpServer tcpServer([]() { return new CliServer(); }, //
 	                    ipAddress,                  //
 	                    23457);                     //
 
