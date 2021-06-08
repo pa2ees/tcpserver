@@ -3,6 +3,7 @@
 #include <ICommsConnection.h>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/system/error_code.hpp>
 
 class CliServer : public ICommsApp
 {
@@ -23,19 +24,3 @@ private:
 };
 
 
-class CliPacket
-{
-public:
-	CliPacket();
-	~CliPacket();
-
-
-    bool isValid();
-    
-private:
-    bool valid = false;
-    std::string command = "";
-    uint16_t payloadLength = 0;
-    std::string payload = "";
-    
-};

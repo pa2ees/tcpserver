@@ -6,7 +6,7 @@ CliServer::CliServer() {}
 CliServer::~CliServer() {}
 
 int CliServer::handleRead(std::string incomingMessage, const boost::system::error_code &error,
-                          size_t bytesTransferred) override
+                          size_t bytesTransferred)
 { // do stuff
 	int retval = 0;
 	std::cout << "Got: " << incomingMessage << std::endl;
@@ -18,7 +18,7 @@ int CliServer::handleRead(std::string incomingMessage, const boost::system::erro
 
 	return retval;
 }
-int CliServer::handleWrite(const boost::system::error_code &error, size_t bytesTransferred) override
+int CliServer::handleWrite(const boost::system::error_code &error, size_t bytesTransferred)
 { // At the moment, this is not used
 	std::cout << "Handle Write" << std::endl;
 	return 0;
@@ -34,12 +34,12 @@ void CliServer::sendMessage(std::string outgoingMessage)
 		std::cout << "Could not write message, no commsConnection!" << std::endl;
 	}
 }
-void CliServer::connectionClosed() override
+void CliServer::connectionClosed()
 { // do stuff
 	std::cout << "Connection closed" << std::endl;
 	commsConnection_.reset();
 }
-void CliServer::addConnection(boost::shared_ptr<ICommsConnection> commsConnection) override
+void CliServer::addConnection(boost::shared_ptr<ICommsConnection> commsConnection)
 { // do stuff
 	std::cout << "Add Connection" << std::endl;
 	commsConnection_ = commsConnection;
